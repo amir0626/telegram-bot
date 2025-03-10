@@ -108,8 +108,7 @@ async def get_prediction(update: Update, context: CallbackContext):
         "🔑 *Bas Ek Step Baki Hai!*\n"
         "🎟️ *Game ID Generate Karo Aur Free Prediction Pao!*\n\n"
         "👇 *Generate Game ID* 👇  \n"
-        "[🔗 Click Here](https://t.me/+157yBHKQqE04NTY1
-)"
+        "[🔗 Click Here](https://t.me/+157yBHKQqE04NTY1)"
     )
 
     await context.bot.send_message(chat_id=user_id, text=prediction_message, parse_mode="Markdown")
