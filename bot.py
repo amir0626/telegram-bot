@@ -1,7 +1,7 @@
 import os
 import json
 import datetime
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, CallbackContext
 )
@@ -12,8 +12,8 @@ load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))  # Ensure admin ID is an integer
 CHANNEL_USERNAME = "aviator_lucky_jet_free_Signals"
-# Private channel link for prediction can be added if needed
 
+# File to store user data
 DATA_FILE = "users.json"
 
 # --- User Data Functions ---
@@ -51,7 +51,6 @@ async def start(update: Update, context: CallbackContext):
         [InlineKeyboardButton("🔄 Check", callback_data="check_subscription")]
     ]
     
-    # Agar user already subscribed, prediction button add ho sakta hai (handled in check_subscription)
     reply_markup = InlineKeyboardMarkup(keyboard)
     welcome_message = (
         "👋 *Welcome to Aviator Signal Bot!*\n\n"
@@ -115,9 +114,17 @@ async def get_prediction(update: Update, context: CallbackContext):
         "🔑 *Bas Ek Step Baki Hai!*\n"
         "🎟️ *Game ID Generate Karo Aur Free Prediction Pao!*\n\n"
         "👇 *Generate Game ID* 👇\n"
-        "[🔗 Click Here](https://t.me/+AvrUSyY37D41NzU1)"
+        "[🔗 Click Here](https://t.me/+157yBHKQqE04NTY1)"
     )
     await context.bot.send_message(chat_id=user_id, text=prediction_message, parse_mode="Markdown")
+
+# /send_gameid callback: Prompt user to send their game ID
+async def send_gameid(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()  # Acknowledge the callback
+
+    # Prompt the user to send their game ID
+    await query.message.reply_text("🎮 Please send your Game ID using the following format:\n\n`/gameid <your_game_id>`\n\nExample: `/gameid 12345`", parse_mode="Markdown")
 
 # /gameid command: User sends their game id for verification
 async def gameid_command(update: Update, context: CallbackContext):
@@ -156,8 +163,7 @@ async def accept_gameid(update: Update, context: CallbackContext):
         return
     target_user_id = parts[2]
     await context.bot.send_message(chat_id=int(target_user_id), text="✅ Your game ID has been accepted!")
-    await query.edit_message_text("Game ID accepted.""✅ *Your account has been verified!*\n\n"
-        "Please wait for admin contact or directly message the admin using /help.")
+    await query.edit_message_text("Game ID accepted.")
 
 # Callback for Rejecting Game ID (Admin)
 async def reject_gameid(update: Update, context: CallbackContext):
@@ -222,11 +228,12 @@ def main():
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("broadcast", broadcast))
     application.add_handler(CommandHandler("stats", stats))
-    application.add_handler(CommandHandler("gameid", gameid_command))  # New command for game id submission
+    application.add_handler(CommandHandler("gameid", gameid_command))
 
-    # Callback Query Handlers
+    # Callback Query Handlers222
     application.add_handler(CallbackQueryHandler(check_subscription, pattern="check_subscription"))
     application.add_handler(CallbackQueryHandler(get_prediction, pattern="get_prediction"))
+    application.add_handler(CallbackQueryHandler(send_gameid, pattern="send_gameid"))  # New handler
     application.add_handler(CallbackQueryHandler(accept_gameid, pattern="accept_gameid_"))
     application.add_handler(CallbackQueryHandler(reject_gameid, pattern="reject_gameid_"))
 
