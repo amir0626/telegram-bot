@@ -1,8 +1,8 @@
 import os
 import json
 import datetime
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, CallbackContext
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, CallbackContext
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -30,17 +30,18 @@ def save_data(data):
 def add_user(user_id):
     data = load_data()
     if str(user_id) not in data["users"]:
-        data["users"][str(user_id)] = {"joined": str(datetime.datetime.now()), "messages_sent": 0, "subscribed": False}
+        data["users"][str(user_id)] = {
+            "joined": str(datetime.datetime.now()),
+            "messages_sent": 0,
+            "subscribed": False
+        }
         save_data(data)
 
-# Start command
-async def start(update: Update, context: CallbackContext):
-    user_id = update.message.from_user.id
-    add_user(user_id)
-
+# Auto send welcome message on /start
+async def send_welcome_message(context: CallbackContext, user_id: int):
     keyboard = [
         [InlineKeyboardButton("✅ Subscribe", url=f"https://t.me/{CHANNEL_USERNAME}")],
-        [InlineKeyboardButton("🔄 Check", callback_data="check_subscription")]
+        [InlineKeyboardButton("🔄 Check", callback_data="check_subscription")],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -50,11 +51,19 @@ async def start(update: Update, context: CallbackContext):
         "✅ 100% accurate signals\n"
         "📢 Daily updates\n"
         "🤖 30,000+ users trust this bot!\n\n"
-        "🔄 *After joining, click the 'Check' button below.*\n\n"
-        "ℹ️ *Need help?* Use /help"
+        "🔄 *After joining, click the 'Check' button below.*"
     )
 
-    await update.message.reply_text(welcome_message, reply_markup=reply_markup, parse_mode="Markdown")
+    try:
+        await context.bot.send_message(chat_id=user_id, text=welcome_message, reply_markup=reply_markup, parse_mode="Markdown")
+    except Exception as e:
+        print(f"Error sending welcome message: {e}")
+
+# Start command
+async def start(update: Update, context: CallbackContext):
+    user_id = update.message.from_user.id
+    add_user(user_id)
+    await send_welcome_message(context, user_id)
 
 # Subscription check function
 async def check_subscription(update: Update, context: CallbackContext):
@@ -95,6 +104,7 @@ async def check_subscription(update: Update, context: CallbackContext):
 # Get Aviator Prediction
 async def get_prediction(update: Update, context: CallbackContext):
     query = update.callback_query
+    await query.answer()  # Acknowledge the callback
     user_id = query.from_user.id
 
     data = load_data()
@@ -107,7 +117,7 @@ async def get_prediction(update: Update, context: CallbackContext):
         "🚀 *Apni Kismat Badlo!*\n"
         "🔑 *Bas Ek Step Baki Hai!*\n"
         "🎟️ *Game ID Generate Karo Aur Free Prediction Pao!*\n\n"
-        "👇 *Generate Game ID* 👇  \n"
+        "👇 *Generate Game ID* 👇\n"
         "[🔗 Click Here](https://t.me/+157yBHKQqE04NTY1)"
     )
 
@@ -155,6 +165,16 @@ async def stats(update: Update, context: CallbackContext):
     total_users = len(data.get("users", {}))
     await update.message.reply_text(f"📊 Total Users: {total_users}")
 
+# New Handler: Forward user messages to admin with username
+async def forward_message(update: Update, context: CallbackContext):
+    # This will catch all text messages that are not commands
+    user = update.message.from_user
+    text = update.message.text
+    username = f"@{user.username}" if user.username else f"{user.first_name} {user.last_name or ''}"
+    forward_text = f"📩 *Message Received*\nFrom: {username}\nUser ID: {user.id}\nMessage: {text}"
+    # Send this forward to the admin's chat
+    await context.bot.send_message(chat_id=ADMIN_ID, text=forward_text, parse_mode="Markdown")
+
 # Main function
 def main():
     application = Application.builder().token(TOKEN).build()
@@ -168,6 +188,9 @@ def main():
     # Callback query handlers
     application.add_handler(CallbackQueryHandler(check_subscription, pattern="check_subscription"))
     application.add_handler(CallbackQueryHandler(get_prediction, pattern="get_prediction"))
+
+    # Message handler for forwarding messages to admin
+    application.add_handler(MessageHandler(~filters.COMMAND, forward_message))
 
     print("🤖 Bot is running...")
     application.run_polling()
