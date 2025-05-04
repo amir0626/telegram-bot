@@ -307,7 +307,7 @@ async def start(update: Update, context: CallbackContext):
     
     # Show welcome message if language is already selected
     keyboard = [
-        [InlineKeyboardButton("✅ Subscribe", url="https://t.me/+157yBHKQqE04NTY1")],
+        [InlineKeyboardButton("✅ Subscribe", url="https://t.me/aviator_lucky_jet_free_Signals")],
         [InlineKeyboardButton("🔄 Check", callback_data="check_subscription")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -335,7 +335,7 @@ async def select_language(update: Update, context: CallbackContext):
     
     # Show welcome message
     keyboard = [
-        [InlineKeyboardButton("✅ Subscribe", url="https://t.me/+157yBHKQqE04NTY1")],
+        [InlineKeyboardButton("✅ Subscribe", url="https://t.me/aviator_lucky_jet_free_Signals")],
         [InlineKeyboardButton("🔄 Check", callback_data="check_subscription")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -379,7 +379,7 @@ async def check_subscription(update: Update, context: CallbackContext):
             await update_last_message_id(user_id, message.message_id)
         else:
             keyboard = [
-                [InlineKeyboardButton("✅ Subscribe", url="https://t.me/+157yBHKQqE04NTY1")],
+                [InlineKeyboardButton("✅ Subscribe", url="https://t.me/aviator_lucky_jet_free_Signals")],
                 [InlineKeyboardButton("🔄 Check Again", callback_data="check_subscription")]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -391,7 +391,7 @@ async def check_subscription(update: Update, context: CallbackContext):
             await update_last_message_id(user_id, message.message_id)
     except Exception:
         keyboard = [
-            [InlineKeyboardButton("✅ Subscribe", url="https://t.me/+157yBHKQqE04NTY1")],
+            [InlineKeyboardButton("✅ Subscribe", url="https://t.me/aviator_lucky_jet_free_Signals")],
             [InlineKeyboardButton("🔄 Check Again", callback_data="check_subscription")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -606,7 +606,7 @@ async def back_to_main_menu(update: Update, context: CallbackContext):
     
     if not user_data.get("subscribed", False):
         keyboard = [
-            [InlineKeyboardButton("✅ Subscribe", url="https://t.me/+157yBHKQqE04NTY1")],
+            [InlineKeyboardButton("✅ Subscribe", url="https://t.me/aviator_lucky_jet_free_Signals")],
             [InlineKeyboardButton("🔄 Check", callback_data="check_subscription")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
