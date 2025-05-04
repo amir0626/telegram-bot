@@ -5,6 +5,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, CallbackContext
 )
+from telegram.error import Conflict
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -744,30 +745,35 @@ async def stats(update: Update, context: CallbackContext):
 
 # --- Main function ---
 def main():
-    application = Application.builder().token(TOKEN).build()
+    try:
+        application = Application.builder().token(TOKEN).build()
 
-    # Command Handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("broadcast", broadcast))
-    application.add_handler(CommandHandler("stats", stats))
-    application.add_handler(CommandHandler("gameid", gameid_command))
+        # Command Handlers
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("broadcast", broadcast))
+        application.add_handler(CommandHandler("stats", stats))
+        application.add_handler(CommandHandler("gameid", gameid_command))
 
-    # Callback Query Handlers
-    application.add_handler(CallbackQueryHandler(select_language, pattern="select_language_"))
-    application.add_handler(CallbackQueryHandler(confirm_language, pattern="confirm_language_"))
-    application.add_handler(CallbackQueryHandler(check_subscription, pattern="check_subscription"))
-    application.add_handler(CallbackQueryHandler(change_language, pattern="change_language"))
-    application.add_handler(CallbackQueryHandler(get_prediction, pattern="get_prediction"))
-    application.add_handler(CallbackQueryHandler(get_signal, pattern="get_signal"))
-    application.add_handler(CallbackQueryHandler(vip_signal, pattern="vip_signal"))
-    application.add_handler(CallbackQueryHandler(send_gameid, pattern="send_gameid"))
-    application.add_handler(CallbackQueryHandler(back_to_main_menu, pattern="back_to_main_menu"))
-    application.add_handler(CallbackQueryHandler(accept_gameid, pattern="accept_gameid_"))
-    application.add_handler(CallbackQueryHandler(reject_gameid, pattern="reject_gameid_"))
+        # Callback Query Handlers
+        application.add_handler(CallbackQueryHandler(select_language, pattern="select_language_"))
+        application.add_handler(CallbackQueryHandler(confirm_language, pattern="confirm_language_"))
+        application.add_handler(CallbackQueryHandler(check_subscription, pattern="check_subscription"))
+        application.add_handler(CallbackQueryHandler(change_language, pattern="change_language"))
+        application.add_handler(CallbackQueryHandler(get_prediction, pattern="get_prediction"))
+        application.add_handler(CallbackQueryHandler(get_signal, pattern="get_signal"))
+        application.add_handler(CallbackQueryHandler(vip_signal, pattern="vip_signal"))
+        application.add_handler(CallbackQueryHandler(send_gameid, pattern="send_gameid"))
+        application.add_handler(CallbackQueryHandler(back_to_main_menu, pattern="back_to_main_menu"))
+        application.add_handler(CallbackQueryHandler(accept_gameid, pattern="accept_gameid_"))
+        application.add_handler(CallbackQueryHandler(reject_gameid, pattern="reject_gameid_"))
 
-    print("🤖 Bot is running...")
-    application.run_polling()
+        print("🤖 Bot is running...")
+        application.run_polling()
+    except Conflict as e:
+        print(f"Conflict error: {e}. Please ensure only one bot instance is running.")
+        print("Try killing all Python processes with: taskkill /IM python.exe /F")
+        print("Then restart the bot.")
 
 if __name__ == "__main__":
     main()
